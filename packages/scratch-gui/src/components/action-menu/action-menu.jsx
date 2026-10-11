@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import ReactTooltip from 'react-tooltip';
 import styles from './action-menu.css';
 import {KEY} from '../../lib/navigation-keys';
+import {filterActionMenu, useStucentPolicy} from '../../stucent/policy';
 
 const CLOSE_DELAY = 300; // ms
 
@@ -282,7 +283,8 @@ ActionMenu.propTypes = {
             fileAccept: PropTypes.string, // Optional, only for file upload
             fileChange: PropTypes.func, // Optional, only for file upload
             fileInput: PropTypes.func, // Optional, only for file upload
-            fileMultiple: PropTypes.bool // Optional, only for file upload
+            fileMultiple: PropTypes.bool, // Optional, only for file upload
+            stucentKind: PropTypes.string // Optional: library | surprise | upload | paint | record
         })
     ),
     onClick: PropTypes.func.isRequired,
@@ -290,7 +292,14 @@ ActionMenu.propTypes = {
     tooltipPlace: PropTypes.string
 };
 
-export default React.memo(ActionMenu, (prevProps, nextProps) =>
+// The StuCent policy (src/stucent/policy.js) may remove buttons; outside StuCent it changes nothing.
+const PolicyActionMenu = props => {
+    const menu = filterActionMenu(props, useStucentPolicy());
+    return menu ? <ActionMenu {...menu} /> : null;
+};
+PolicyActionMenu.propTypes = ActionMenu.propTypes;
+
+export default React.memo(PolicyActionMenu, (prevProps, nextProps) =>
     // This check prevents re-rendering while the project is updating.
     // This is needed because of the sloppy way the props are passed as a new object,
     // which should be refactored.

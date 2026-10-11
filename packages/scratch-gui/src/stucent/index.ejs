@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google" value="notranslate">
+    <meta name="referrer" content="no-referrer">
+    <!--
+      Nothing leaves this page except to the host page over postMessage: no
+      analytics, no Scratch servers, no extension services. frame-ancestors is
+      the server's header to set (a meta tag cannot carry it).
+      'unsafe-eval' is needed: the VM validates every project with scratch-parser,
+      whose JSON-schema validator (ajv) compiles its schema with new Function().
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; connect-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+  </head>
+  <body>
+    <noscript>Block game studio needs JavaScript. It is compatible with Scratch 3 projects.</noscript>
+  </body>
+</html>

@@ -1,0 +1,27 @@
+/* Locked scripts (src/stucent/locks.js): dimmed, dashed, with a lock mark. */
+.stucent-locked > .blocklyPath {
+    stroke: #575e75;
+    stroke-dasharray: 4 3;
+    stroke-width: 1.5px;
+    fill-opacity: 0.75;
+}
+
+.stucent-lock-mark {
+    font-size: 16px;
+    pointer-events: auto;
+    user-select: none;
+}
+
+html,
+body,
+.stucent-app {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+
+    /* The editor's own minimum; below it the frame scrolls. */
+    min-width: 1024px;
+    min-height: 640px;
+}
+
+* { box-sizing: border-box; }

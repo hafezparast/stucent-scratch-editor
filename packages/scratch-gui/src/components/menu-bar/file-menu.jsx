@@ -13,6 +13,7 @@ import dropdownCaret from './dropdown-caret.svg';
 import useMenuNavigation from '../../hooks/use-menu-navigation';
 
 import sharedMessages from '../../lib/shared-messages';
+import {projectReplaceAllowed, useStucentPolicy} from '../../stucent/policy';
 
 import {saveProjectAsCopy} from '../../reducers/project-state';
 
@@ -37,6 +38,7 @@ const FileMenu = ({
     depth
 }) => {
     const intl = useIntl();
+    const policy = useStucentPolicy();
 
     const {
         menuRef,
@@ -98,15 +100,17 @@ const FileMenu = ({
                 place={isRtl ? 'left' : 'right'}
                 onRequestClose={handleOnClose}
             >
-                <MenuSection>
-                    <MenuItem
-                        onClick={onClickNew}
-                        isDataMenuItem
-                        onParentKeyDown={handleKeyDownOpenMenu}
-                    >
-                        {newProjectMessage}
-                    </MenuItem>
-                </MenuSection>
+                {projectReplaceAllowed(policy) && (
+                    <MenuSection>
+                        <MenuItem
+                            onClick={onClickNew}
+                            isDataMenuItem
+                            onParentKeyDown={handleKeyDownOpenMenu}
+                        >
+                            {newProjectMessage}
+                        </MenuItem>
+                    </MenuSection>
+                )}
                 {(canSave || canCreateCopy || canRemix) && (
                     <MenuSection>
                         {canSave && (
@@ -139,13 +143,15 @@ const FileMenu = ({
                     </MenuSection>
                 )}
                 <MenuSection>
-                    <MenuItem
-                        onClick={onStartSelectingFileUpload}
-                        isDataMenuItem
-                        onParentKeyDown={handleKeyDownOpenMenu}
-                    >
-                        {intl.formatMessage(sharedMessages.loadFromComputerTitle)}
-                    </MenuItem>
+                    {projectReplaceAllowed(policy) && (
+                        <MenuItem
+                            onClick={onStartSelectingFileUpload}
+                            isDataMenuItem
+                            onParentKeyDown={handleKeyDownOpenMenu}
+                        >
+                            {intl.formatMessage(sharedMessages.loadFromComputerTitle)}
+                        </MenuItem>
+                    )}
                     <SB3Downloader>{(className, downloadProjectCallback) => (
                         <MenuItem
                             className={className}

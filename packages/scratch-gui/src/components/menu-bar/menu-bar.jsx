@@ -27,6 +27,8 @@ import FileMenu from './file-menu.jsx';
 import EditMenu from './edit-menu.jsx';
 import ModeMenu from './mode-menu.jsx';
 import AboutMenu from './about-menu.jsx';
+import StucentBrand from '../../stucent/brand.jsx';
+import {getPolicy} from '../../stucent/policy';
 
 import {openTipsLibrary, openDebugModal} from '../../reducers/modals';
 import {setPlayer} from '../../reducers/mode';
@@ -327,7 +329,7 @@ class MenuBar extends React.Component {
             >
                 <div className={styles.mainMenu}>
                     <div className={styles.fileGroup}>
-                        <button
+                        {getPolicy().active ? <StucentBrand className={styles.menuBarItem} /> : <button
                             aria-label={this.props.intl.formatMessage(ariaMessages.home)}
                             className={classNames(styles.menuBarItem)}
                             onClick={this.props.onClickLogo}
@@ -341,7 +343,7 @@ class MenuBar extends React.Component {
                                 draggable={false}
                                 src={getScratchLogo(this.props.platform)}
                             />
-                        </button>
+                        </button>}
                         {(this.props.canChangeColorMode || this.props.canChangeLanguage || this.props.canChangeTheme) &&
                         (<SettingsMenu
                             canChangeLanguage={this.props.canChangeLanguage}
@@ -455,8 +457,8 @@ class MenuBar extends React.Component {
                             </MenuBarItemTooltip>
                         ) : [])}
                     </div>
-                    <Divider className={classNames(styles.divider)} />
-                    <div className={styles.fileGroup}>
+                    {getPolicy().active ? null : <Divider className={classNames(styles.divider)} />}
+                    {getPolicy().active ? null : <div className={styles.fileGroup}>
                         <button
                             aria-label={this.props.intl.formatMessage(ariaMessages.tutorials)}
                             className={
@@ -485,7 +487,7 @@ class MenuBar extends React.Component {
                                 <FormattedMessage {...ariaMessages.debug} />
                             </span>
                         </button>
-                    </div>
+                    </div>}
                 </div>
 
                 {/* show the proper UI in the account menu, given whether the user is

@@ -1,0 +1,15 @@
+Block game studio (compatible with Scratch 3 projects)
+
+This is a modified version of the Scratch editor (scratch-gui and the packages
+it is built from, https://github.com/scratchfoundation/scratch-editor), made for
+StuCent. It is free software under the GNU Affero General Public License v3.0
+(see LICENSE). It is not affiliated with, or endorsed by, the Scratch Foundation.
+
+Complete corresponding source code:
+  https://github.com/hafezparast/stucent-scratch-editor  (branch stucent/main)
+Based on scratchfoundation/scratch-editor commit
+  697d53d72c7dd102357aaac15a4d9ffd4e60738e
+The exact commit this build was made from is in BUILD.txt next to this file.
+
+Build: npm ci && npm run build:stucent --workspace=packages/scratch-gui
+       (after building packages/task-herder and packages/scratch-storage)

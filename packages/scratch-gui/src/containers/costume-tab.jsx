@@ -345,7 +345,8 @@ class CostumeTab extends React.Component {
                     {
                         title: intl.formatMessage(addLibraryMessage),
                         img: addLibraryIcon,
-                        onClick: addLibraryFunc
+                        onClick: addLibraryFunc,
+                        stucentKind: 'library'
                     },
                     {
                         title: intl.formatMessage(addFileMessage),
@@ -354,22 +355,26 @@ class CostumeTab extends React.Component {
                         fileAccept: '.svg, .png, .bmp, .jpg, .jpeg, .gif',
                         fileChange: this.handleCostumeUpload,
                         fileInput: this.setFileInput,
-                        fileMultiple: true
+                        fileMultiple: true,
+                        stucentKind: 'upload'
                     },
                     {
                         title: intl.formatMessage(messages.addSurpriseCostumeMsg),
                         img: surpriseIcon,
-                        onClick: addSurpriseFunc
+                        onClick: addSurpriseFunc,
+                        stucentKind: 'surprise'
                     },
                     {
                         title: intl.formatMessage(messages.addBlankCostumeMsg),
                         img: paintIcon,
-                        onClick: this.handleNewBlankCostume
+                        onClick: this.handleNewBlankCostume,
+                        stucentKind: 'paint'
                     },
                     {
                         title: intl.formatMessage(addLibraryMessage),
                         img: searchIcon,
-                        onClick: addLibraryFunc
+                        onClick: addLibraryFunc,
+                        stucentKind: 'library'
                     }
                 ]}
                 dragType={DragConstants.COSTUME}

@@ -256,7 +256,8 @@ class SoundTab extends React.Component {
                 buttons={[{
                     title: intl.formatMessage(messages.addSound),
                     img: addSoundFromLibraryIcon,
-                    onClick: this.handleNewSoundFromLibraryClick
+                    onClick: this.handleNewSoundFromLibraryClick,
+                    stucentKind: 'library'
                 }, {
                     title: intl.formatMessage(messages.fileUploadSound),
                     img: fileUploadIcon,
@@ -264,19 +265,23 @@ class SoundTab extends React.Component {
                     fileAccept: '.wav, .mp3',
                     fileChange: this.handleSoundUpload,
                     fileInput: this.setFileInput,
-                    fileMultiple: true
+                    fileMultiple: true,
+                    stucentKind: 'upload'
                 }, {
                     title: intl.formatMessage(messages.surpriseSound),
                     img: surpriseIcon,
-                    onClick: this.handleSurpriseSound
+                    onClick: this.handleSurpriseSound,
+                    stucentKind: 'surprise'
                 }, {
                     title: intl.formatMessage(messages.recordSound),
                     img: addSoundFromRecordingIcon,
-                    onClick: onNewSoundFromRecordingClick
+                    onClick: onNewSoundFromRecordingClick,
+                    stucentKind: 'record'
                 }, {
                     title: intl.formatMessage(messages.addSound),
                     img: searchIcon,
-                    onClick: this.handleNewSoundFromLibraryClick
+                    onClick: this.handleNewSoundFromLibraryClick,
+                    stucentKind: 'library'
                 }]}
                 dragType={DragConstants.SOUND}
                 isRtl={isRtl}

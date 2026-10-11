@@ -8,8 +8,11 @@ import {DangerousMenuItem, MenuItem} from '../context-menu/context-menu.jsx';
 import {FormattedMessage} from 'react-intl';
 import * as ContextMenu from '@radix-ui/react-context-menu';
 import {KEY} from '../../lib/navigation-keys.js';
+import {isSpriteLocked, useStucentPolicy} from '../../stucent/policy';
 
 const SpriteSelectorItem = props => {
+    // A sprite StuCent locked (src/stucent/locks.js) is marked and cannot be deleted from its tile.
+    const locked = isSpriteLocked(props.name, useStucentPolicy()) && props.dragType === 'SPRITE';
     useEffect(() => {
         const handleResize = () => {
             const contextMenu = document.querySelector('[data-radix-popper-content-wrapper]');
@@ -65,12 +68,15 @@ const SpriteSelectorItem = props => {
                         </div>
                     ) : null}
                     <div className={styles.spriteInfo}>
-                        <div className={styles.spriteName}>{props.name}</div>
+                        <div className={styles.spriteName}>
+                            {locked ? <span title="Locked by your teacher">{'\u{1F512} '}</span> : null}
+                            {props.name}
+                        </div>
                         {props.details ? (
                             <div className={styles.spriteDetails}>{props.details}</div>
                         ) : null}
                     </div>
-                    {(props.selected && props.onDeleteButtonClick) ? (
+                    {(props.selected && props.onDeleteButtonClick && !locked) ? (
                         <DeleteButton
                             className={styles.deleteButton}
                             isConfirmationModalOpened={props.isDeleteConfirmationModalOpened}
@@ -125,6 +131,7 @@ SpriteSelectorItem.propTypes = {
     componentRef: PropTypes.func,
     costumeURL: PropTypes.string,
     details: PropTypes.string,
+    dragType: PropTypes.string,
     name: PropTypes.string.isRequired,
     number: PropTypes.number,
     onClick: PropTypes.func,

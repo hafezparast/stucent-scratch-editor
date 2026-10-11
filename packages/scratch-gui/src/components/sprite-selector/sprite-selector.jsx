@@ -123,19 +123,23 @@ const SpriteSelectorComponent = function (props) {
                         fileAccept: '.svg, .png, .bmp, .jpg, .jpeg, .sprite2, .sprite3, .gif',
                         fileChange: onSpriteUpload,
                         fileInput: spriteFileInput,
-                        fileMultiple: true
+                        fileMultiple: true,
+                        stucentKind: 'upload'
                     }, {
                         title: intl.formatMessage(messages.addSpriteFromSurprise),
                         img: surpriseIcon,
-                        onClick: onSurpriseSpriteClick // TODO need real function for this
+                        onClick: onSurpriseSpriteClick, // TODO need real function for this
+                        stucentKind: 'surprise'
                     }, {
                         title: intl.formatMessage(messages.addSpriteFromPaint),
                         img: paintIcon,
-                        onClick: onPaintSpriteClick // TODO need real function for this
+                        onClick: onPaintSpriteClick, // TODO need real function for this
+                        stucentKind: 'paint'
                     }, {
                         title: intl.formatMessage(messages.addSpriteFromLibrary),
                         img: searchIcon,
-                        onClick: onNewSpriteClick
+                        onClick: onNewSpriteClick,
+                        stucentKind: 'library'
                     }
                 ]}
                 title={intl.formatMessage(messages.addSpriteFromLibrary)}

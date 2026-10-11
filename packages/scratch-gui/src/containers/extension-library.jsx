@@ -9,6 +9,7 @@ import extensionLibraryContent from '../lib/libraries/extensions/index.jsx';
 
 import LibraryComponent from '../components/library/library.jsx';
 import extensionIcon from '../components/action-menu/icon--sprite.svg';
+import {isExtensionAllowed} from '../stucent/policy';
 
 const messages = defineMessages({
     extensionTitle: {
@@ -48,10 +49,12 @@ class ExtensionLibrary extends React.PureComponent {
         }
     }
     render () {
-        const extensionLibraryThumbnailData = extensionLibraryContent.map(extension => ({
-            rawURL: extension.iconURL || extensionIcon,
-            ...extension
-        }));
+        const extensionLibraryThumbnailData = extensionLibraryContent
+            .filter(extension => isExtensionAllowed(extension.extensionId))
+            .map(extension => ({
+                rawURL: extension.iconURL || extensionIcon,
+                ...extension
+            }));
         return (
             <LibraryComponent
                 data={extensionLibraryThumbnailData}

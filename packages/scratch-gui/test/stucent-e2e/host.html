@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Bridge host</title>
+  <style>html, body { margin: 0; height: 100%; } iframe { border: 0; width: 1280px; height: 800px; }</style>
+</head>
+<body>
+<script>
+  // A stand-in for the StuCent page: it frames the editor in a sandbox and talks emu/1 to it.
+  const params = new URLSearchParams(location.search);
+  const editorOrigin = params.get('editor');
+  const mode = params.get('mode') || 'edit';
+  const hostParam = params.get('hostParam') || location.origin;
+  window.events = [];
+  window.timing = {start: performance.now(), ready: null};
+  const pending = new Map();
+  let next = 1;
+
+  window.addEventListener('message', event => {
+    const frame = document.querySelector('iframe');
+    if (!frame || event.source !== frame.contentWindow) return;
+    const msg = event.data;
+    if (!msg || msg.emu !== 'emu/1') return;
+    if (msg.type === 'result') {
+      const p = pending.get(msg.re);
+      if (p) { pending.delete(msg.re); p(msg); }
+      return;
+    }
+    if (msg.type === 'ready') window.timing.ready = performance.now();
+    window.events.push(msg);
+  });
+
+  window.emu = (type, payload = {}, transfer = []) => new Promise(resolve => {
+    const id = `r${next++}`;
+    pending.set(id, resolve);
+    document.querySelector('iframe').contentWindow.postMessage({...payload, emu: 'emu/1', type, id}, '*', transfer);
+  });
+
+  const frame = document.createElement('iframe');
+  frame.setAttribute('sandbox', 'allow-scripts allow-downloads');
+  frame.setAttribute('allow', 'fullscreen');
+  frame.src = `${editorOrigin}/emulators/scratch/index.html?host=${encodeURIComponent(hostParam)}&mode=${mode}&locale=en`;
+  window.timing.start = performance.now();
+  document.body.appendChild(frame);
+</script>
+</body>
+</html>

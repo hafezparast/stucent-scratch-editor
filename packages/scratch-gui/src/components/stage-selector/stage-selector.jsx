@@ -105,19 +105,23 @@ const StageSelector = props => {
                         fileAccept: '.svg, .png, .bmp, .jpg, .jpeg, .gif',
                         fileChange: onBackdropFileUpload,
                         fileInput: fileInputRef,
-                        fileMultiple: true
+                        fileMultiple: true,
+                        stucentKind: 'upload'
                     }, {
                         title: intl.formatMessage(messages.addBackdropFromSurprise),
                         img: surpriseIcon,
-                        onClick: onSurpriseBackdropClick
+                        onClick: onSurpriseBackdropClick,
+                        stucentKind: 'surprise'
                     }, {
                         title: intl.formatMessage(messages.addBackdropFromPaint),
                         img: paintIcon,
-                        onClick: onEmptyBackdropClick
+                        onClick: onEmptyBackdropClick,
+                        stucentKind: 'paint'
                     }, {
                         title: intl.formatMessage(messages.addBackdropFromLibrary),
                         img: searchIcon,
-                        onClick: onNewBackdropClick
+                        onClick: onNewBackdropClick,
+                        stucentKind: 'library'
                     }
                 ]}
                 title={intl.formatMessage(messages.addBackdropFromLibrary)}

@@ -229,6 +229,130 @@ const buildConfig = baseConfig.clone()
         ]
     }));
 
+// StuCent's embedded editor (src/stucent/): one static page, served from any path, no
+// source maps, no Google Tag Manager, and only the files that page needs (no hardware
+// extension firmware, no face-sensing models).
+const stucentConfig = new ScratchWebpackConfigBuilder(
+    {
+        rootPath: path.resolve(__dirname),
+        distPath: path.resolve(__dirname, 'build-stucent'),
+        publicPath: '',
+        enableReact: true,
+        enableTs: true,
+        shouldSplitChunks: false,
+        cssModuleExceptions
+    })
+    .setTarget('browserslist')
+    .merge({
+        devtool: false,
+        entry: {
+            editor: path.join(__dirname, 'src/stucent/index.jsx')
+        },
+        output: {
+            assetModuleFilename: 'static/assets/[name].[hash][ext][query]',
+            path: path.resolve(__dirname, 'build-stucent'),
+            publicPath: '',
+            filename: '[name].[contenthash:8].js',
+            clean: true
+        },
+        resolve: {
+            alias: {
+                // The VM's own sb3 module (the package's `exports` do not list it):
+                // the bridge turns host blocks JSON into VM blocks with it.
+                'stucent-vm-sb3$': path.resolve(
+                    __dirname, '../../node_modules/@scratch/scratch-vm/src/serialization/sb3.js'
+                )
+            },
+            fallback: {
+                Buffer: require.resolve('buffer/'),
+                stream: require.resolve('stream-browserify')
+            },
+            symlinks: false
+        }
+    })
+    .addModuleRule({
+        test: /\.[cm]?jsx?$/,
+        include: [
+            /node_modules[\\/]@scratch[\\/]scratch-paint[\\/]src[\\/]/
+        ],
+        loader: 'babel-loader',
+        options: {
+            presets: [
+                '@babel/preset-env',
+                '@babel/preset-react'
+            ]
+        }
+    })
+    .addModuleRule({
+        test: /\.(svg|png|wav|mp3|gif|jpg)$/,
+        resourceQuery: /^$/, // reject any query string
+        type: 'asset'
+    })
+    .addPlugin(new webpack.DefinePlugin({
+        'process.env.DEBUG': false,
+        'process.env.GA_ID': '"UA-000000-01"',
+        'process.env.GTM_ENV_AUTH': '""',
+        'process.env.GTM_ID': null
+    }))
+    .addPlugin(new CopyWebpackPlugin({
+        patterns: [
+            {
+                from: '../../node_modules/scratch-blocks/media',
+                to: 'static/blocks-media/default'
+            },
+            {
+                from: '../../node_modules/scratch-blocks/media',
+                to: 'static/blocks-media/high-contrast'
+            },
+            {
+                from: 'src/lib/settings/color-mode/high-contrast/blocks-media',
+                to: 'static/blocks-media/high-contrast',
+                force: true
+            },
+            {from: '../../LICENSE', to: 'LICENSE', toType: 'file'},
+            {from: 'src/stucent/SOURCE.txt', to: 'SOURCE.txt'}
+        ]
+    }))
+    .addModuleRule({
+        test: /scratch-l10n[\\/]locales[\\/]editor-msgs\.js$/,
+        loader: path.resolve(__dirname, 'src/stucent/build/l10n-filter-loader.js')
+    })
+    .addPlugin(new webpack.NormalModuleReplacementPlugin(
+        new RegExp('extensions[\\\\/]scratch3_(wedo2|microbit|text2speech|translate|video_sensing|ev3|boost|' +
+            'gdx_for|face_sensing|speech2text)$'),
+        path.resolve(__dirname, 'src/stucent/build/refused-extension.js')
+    ))
+    .addPlugin(new webpack.NormalModuleReplacementPlugin(
+        /libraries[\\/]decks[\\/]index\.jsx$/,
+        path.resolve(__dirname, 'src/stucent/build/no-decks.js')
+    ))
+    .addPlugin(new webpack.NormalModuleReplacementPlugin(
+        /libraries[\\/]decks[\\/]translate-image\.js$/,
+        path.resolve(__dirname, 'src/stucent/build/no-deck-images.js')
+    ))
+    // Sandboxed, the page has no cookies or web storage, and StuCent wants none kept.
+    .addPlugin(new webpack.NormalModuleReplacementPlugin(
+        /settings[\\/]theme[\\/]persistence\.js$/,
+        path.resolve(__dirname, 'src/stucent/build/no-cookie-theme.js')
+    ))
+    .addPlugin(new webpack.NormalModuleReplacementPlugin(
+        /settings[\\/]color-mode[\\/]persistence\.js$/,
+        path.resolve(__dirname, 'src/stucent/build/no-cookie-color-mode.js')
+    ))
+    .addPlugin(new webpack.NormalModuleReplacementPlugin(
+        /lib[\\/]local-storage\.js$/,
+        path.resolve(__dirname, 'src/stucent/build/memory-storage.js')
+    ))
+    .addPlugin(new webpack.NormalModuleReplacementPlugin(
+        /microbit-hex-url\.cjs$/,
+        path.resolve(__dirname, 'src/stucent/build/no-microbit-hex.js')
+    ))
+    .addPlugin(new HtmlWebpackPlugin({
+        chunks: ['editor'],
+        template: 'src/stucent/index.ejs',
+        title: 'Block game studio'
+    }));
+
 // Skip building `dist/` unless explicitly requested
 // It roughly doubles build time and isn't needed for `scratch-gui` development
 // If you need non-production `dist/` for local dev, such as for `scratch-www` work, you can run something like:
@@ -239,7 +363,8 @@ let config;
 switch (process.env.BUILD_TYPE) {
 case 'dist': config = distConfig.get(); break;
 case 'dist-standalone': config = distStandaloneConfig.get(); break;
+case 'stucent': config = stucentConfig.get(); break;
 default: config = buildConfig.get(); break;
 }
 
-module.exports = buildDist ? config : buildConfig.get();
+module.exports = (buildDist || process.env.BUILD_TYPE === 'stucent') ? config : buildConfig.get();

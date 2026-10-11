@@ -5,6 +5,7 @@ import Box from '../box/box.jsx';
 import {defineMessages, FormattedMessage, useIntl} from 'react-intl';
 
 import styles from './webgl-modal.css';
+import {getPolicy} from '../../stucent/policy';
 
 const messages = defineMessages({
     label: {
@@ -87,7 +88,7 @@ const WebGlModal = props => {
                                 a: previewFaqLink => (
                                     <a
                                         className={styles.faqLink}
-                                        href="//scratch.mit.edu/3faq"
+                                        href={getPolicy().active ? null : '//scratch.mit.edu/3faq'}
                                     >
                                         {previewFaqLink}
                                     </a>

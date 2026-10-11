@@ -27,3 +27,7 @@ npm-*
 
 # for act
 .secrets
+
+# StuCent embedded editor build and its release tarballs
+/build-stucent
+/stucent-release
