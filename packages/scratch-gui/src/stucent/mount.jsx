@@ -234,6 +234,9 @@ const mountEditor = (appTarget, params, storage) => {
             return {};
         },
         greenFlag: () => {
+            // A player-only GUI (readonly) leaves the VM unstarted until its own green flag is clicked,
+            // as the stage controls do: start it first. Starting a running VM does nothing.
+            vm.start();
             vm.greenFlag();
             return {};
         },
