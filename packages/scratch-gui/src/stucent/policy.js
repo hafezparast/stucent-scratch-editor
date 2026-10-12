@@ -58,6 +58,17 @@ const hasLocks = (policy = state) => policy.locks.sprites.length > 0 || policy.l
  * @param policy
  */
 const projectReplaceAllowed = (policy = state) => !policy.active || (policy.mode === 'edit' && !hasLocks(policy));
+/**
+ * May the player save the project to their computer? Not in an exam (the sandbox has no downloads there)
+ * or a readonly view.
+ * @param policy
+ */
+const downloadAllowed = (policy = state) => !policy.active || policy.mode === 'edit';
+/**
+ * Is anything left in the File menu (New, Load, Save to your computer)?
+ * @param policy
+ */
+const fileMenuAllowed = (policy = state) => projectReplaceAllowed(policy) || downloadAllowed(policy);
 
 /**
  * Is a button of this kind (`stucentKind` on an action menu button) allowed?
@@ -98,6 +109,8 @@ export {
     EMPTY_LOCKS,
     MODES,
     buttonAllowed,
+    downloadAllowed,
+    fileMenuAllowed,
     filterActionMenu,
     getPolicy,
     hasLocks,

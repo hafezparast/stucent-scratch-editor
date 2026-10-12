@@ -21,6 +21,9 @@ compatible with Scratch 3 projects) over `window.postMessage`. Code:
 - **`assetHost`** (optional): a self-hosted mirror of the costume / sound /
   sprite / backdrop libraries (`<assetHost>/<md5>.<ext>`). Without it the
   libraries are hidden: their assets live on Scratch's servers.
+- **`colorMode`** (optional): `dark` for the editor's dark block colours (the
+  code area only; the rest of the editor stays light), else `default`. A
+  system "more contrast" preference still gives high contrast.
 
 The frame is sandboxed without `allow-same-origin`, so the editor's origin is
 opaque: it has no cookies, no web storage and no access to the host. Its files
@@ -120,8 +123,11 @@ back the replaced one.
 
 - **edit**: the editor, with uploads (sprite, costume, backdrop, sound files,
   File > Load) and File > Save to your computer.
-- **exam**: as edit, without any upload, File > Load or File > New.
-- **readonly**: the stage and its controls only (for review).
+- **exam**: as edit, without any upload, File > Load, File > New or File > Save
+  to your computer: no File menu at all.
+- **readonly**: the stage and its controls only (for review). A `load` (or a
+  `setMode`) draws the project on the stage at once, although the VM is not
+  started until the green flag.
 
 Always, in every mode: no backpack, no sharing, no account, no tutorials, no
 community links, no cloud variables, no analytics; only the Pen and Music

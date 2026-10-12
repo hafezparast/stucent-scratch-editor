@@ -24,7 +24,7 @@ and `packages/scratch-gui/test/stucent-e2e/`), plus small hooks in a few GUI com
 - **Privacy:** no request to any server but its own: no Scratch servers, no analytics, no cloud variables, no
   backpack or sharing, no extensions that call online services or hardware (only Pen and Music), no cookies or web
   storage. Runs in a sandboxed iframe.
-- **Exam mode:** no file uploads, no loading or replacing the project.
+- **Exam mode:** no file uploads, no loading, replacing or saving the project to the computer (no File menu).
 - **Branding:** a plain "Block game studio" label instead of the Scratch logo, a blank project with a ball sprite
   instead of the Scratch Cat, no tutorials or community links; a "Source (AGPL)" link in the menu bar.
 

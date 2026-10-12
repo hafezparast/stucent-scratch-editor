@@ -19,6 +19,7 @@ import {blankProjectJson} from './blank-project';
 import {TRANSFER, debounce, startBridge} from './bridge';
 import {UPSTREAM_COMMIT, VERSION} from './constants';
 import {blocklyEdit, logVmEdits} from './edit-log';
+import {redrawWhileStopped} from './redraw';
 import {LockState, markWorkspace, normalizeLocks, targetLockName} from './locks';
 import {EMPTY_LOCKS, MODES, getPolicy, isExtensionAllowed, setPolicy} from './policy';
 import {vmState} from './vm-state';
@@ -201,6 +202,9 @@ const mountEditor = (appTarget, params, storage) => {
                 await vm.loadProject(input);
                 if (msg.mode) applyMode(msg.mode);
                 applyLocks(msg.locks || EMPTY_LOCKS);
+                // A player-only GUI (readonly) has not started the VM, so nothing would draw the
+                // loaded project: the stage kept the blank one until the green flag (#10736).
+                redrawWhileStopped(vm);
             } finally {
                 loadedAt = performance.now();
                 quietUntil = loadedAt + LOAD_SETTLE_MS;
@@ -250,6 +254,7 @@ const mountEditor = (appTarget, params, storage) => {
         },
         setMode: msg => {
             applyMode(msg.mode);
+            redrawWhileStopped(vm);
             return {};
         }
     };

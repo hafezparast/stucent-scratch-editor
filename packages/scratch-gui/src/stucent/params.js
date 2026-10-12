@@ -5,6 +5,9 @@
 import {MODES} from './policy';
 import LOCALE_MAP from './locale-map';
 
+/** The block colour modes the host may ask for (`colorMode`): dark follows a dark host page. */
+const COLOR_MODES = Object.freeze(['default', 'dark']);
+
 /**
  * The scratch-l10n locale for a StuCent locale code.
  * @param {string|null} code StuCent locale (e.g. "zh", "pt-BR")
@@ -56,7 +59,8 @@ const parseHttpUrl = value => {
  * The StuCent parameters of a page URL.
  * @param {string} search location.search
  * @param {string[]} supportedLocales scratch-l10n locales
- * @returns {{host: (string|null), mode: string, locale: string, assetHost: (string|null)}} parameters
+ * @returns {{host: (string|null), mode: string, locale: string, assetHost: (string|null), colorMode: string}}
+ *     parameters
  */
 const parseParams = (search, supportedLocales) => {
     const q = new URLSearchParams(search);
@@ -65,8 +69,9 @@ const parseParams = (search, supportedLocales) => {
         host: parseOrigin(q.get('host')),
         mode: MODES.includes(mode) ? mode : 'edit',
         locale: mapLocale(q.get('locale'), supportedLocales),
-        assetHost: parseHttpUrl(q.get('assetHost'))
+        assetHost: parseHttpUrl(q.get('assetHost')),
+        colorMode: COLOR_MODES.includes(q.get('colorMode')) ? q.get('colorMode') : 'default'
     };
 };
 
-export {LOCALE_MAP, mapLocale, parseHttpUrl, parseOrigin, parseParams};
+export {COLOR_MODES, LOCALE_MAP, mapLocale, parseHttpUrl, parseOrigin, parseParams};

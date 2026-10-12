@@ -1,4 +1,6 @@
 import {
+    downloadAllowed,
+    fileMenuAllowed,
     filterActionMenu,
     isExtensionAllowed,
     projectReplaceAllowed,
@@ -65,6 +67,20 @@ describe('StuCent policy', () => {
         expect(projectReplaceAllowed(policy({locks: {sprites: ['Bowl'], scripts: []}}))).toBe(false);
     });
 
+    test('an exam or a readonly view offers no Save to your computer', () => {
+        expect(downloadAllowed(policy())).toBe(true);
+        expect(downloadAllowed(policy({mode: 'exam'}))).toBe(false);
+        expect(downloadAllowed(policy({mode: 'readonly'}))).toBe(false);
+        expect(downloadAllowed({...policy({mode: 'exam'}), active: false})).toBe(true);
+    });
+
+    test('the File menu is not shown when nothing is left in it', () => {
+        expect(fileMenuAllowed(policy())).toBe(true);
+        // Locked items: no New or Load, but Save to your computer stays.
+        expect(fileMenuAllowed(policy({locks: {sprites: ['Bowl'], scripts: []}}))).toBe(true);
+        expect(fileMenuAllowed(policy({mode: 'exam'}))).toBe(false);
+    });
+
     test('setPolicy refuses an unknown mode', () => {
         expect(() => setPolicy({mode: 'admin'})).toThrow('Unknown mode');
     });
@@ -92,8 +108,14 @@ describe('StuCent URL parameters', () => {
 
     test('parseParams reads host, mode and locale', () => {
         expect(parseParams('?host=https%3A%2F%2Fa.example&mode=exam&locale=ar', SUPPORTED)).toEqual({
-            host: 'https://a.example', mode: 'exam', locale: 'ar', assetHost: null
+            host: 'https://a.example', mode: 'exam', locale: 'ar', assetHost: null, colorMode: 'default'
         });
         expect(parseParams('?mode=root', SUPPORTED).mode).toBe('edit');
+    });
+
+    test('parseParams reads the colour mode (dark for a dark host page), default otherwise', () => {
+        expect(parseParams('?colorMode=dark', SUPPORTED).colorMode).toBe('dark');
+        expect(parseParams('?colorMode=neon', SUPPORTED).colorMode).toBe('default');
+        expect(parseParams('', SUPPORTED).colorMode).toBe('default');
     });
 });

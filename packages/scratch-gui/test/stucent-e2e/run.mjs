@@ -16,7 +16,8 @@ import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const build = path.resolve(here, '../../build-stucent');
+// STUCENT_E2E_BUILD: check another build (e.g. an earlier release's tarball, to see a new check fail first).
+const build = path.resolve(process.env.STUCENT_E2E_BUILD || path.resolve(here, '../../build-stucent'));
 const [editorPort = '4711', hostPort = '4712', otherPort = '4713'] = process.argv.slice(2);
 const EDITOR = `http://127.0.0.1:${editorPort}`;
 const HOST = `http://127.0.0.1:${hostPort}`;
@@ -154,6 +155,48 @@ const SCRIPT = {
         shadow: false,
         topLevel: false}
 };
+
+// A solid red backdrop, sent with the project as {json, assets}: what a readonly stage must show at once.
+const RED_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360" viewBox="0 0 480 360">' +
+    '<rect width="480" height="360" fill="#e0301e"/></svg>';
+const RED_ID = 'c209fb1b469ecd827b4e2c86317a8ebf';
+const RED_PROJECT = {
+    ...PROJECT,
+    targets: PROJECT.targets.map(t => (t.isStage ?
+        {...t,
+            costumes: [{assetId: RED_ID,
+                name: 'red',
+                md5ext: `${RED_ID}.svg`,
+                dataFormat: 'svg',
+                rotationCenterX: 240,
+                rotationCenterY: 180}]} :
+        t))
+};
+
+/**
+ * A colour of the editor's stage, read from a screenshot (a WebGL canvas cannot be read back).
+ * @param {object} page the host page
+ * @returns {Promise<number[]>} [r, g, b]
+ */
+const stagePixel = async page => {
+    const frame = page.frames().find(f => f.url().includes('/emulators/scratch/'));
+    const png = (await frame.locator('canvas').first()
+        .screenshot()).toString('base64');
+    return page.evaluate(async b64 => {
+        const img = new Image();
+        img.src = `data:image/png;base64,${b64}`;
+        await img.decode();
+        const c = document.createElement('canvas');
+        c.width = img.width;
+        c.height = img.height;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        // Off the centre: the sprites sit on the centre line.
+        return Array.from(ctx.getImageData(Math.floor(img.width * 0.2), Math.floor(img.height * 0.2), 1, 1).data.slice(0, 3));
+    }, png);
+};
+// Red, also under the player's green flag overlay (which dims the stage); the blank project is grey.
+const isRed = ([r, g, b]) => r > 120 && r > 3 * g && r > 3 * b;
 
 const openHost = async (browser, query) => {
     const context = await browser.newContext({viewport: {width: 1300, height: 820}});
@@ -315,6 +358,34 @@ const main = async () => {
         check('no request left the two local servers (no Scratch servers, no analytics)', outside.length === 0,
             outside.slice(0, 5).join(' '));
         check('no CSP violation or console error', problems.length === 0, problems.slice(0, 5).join(' | '));
+
+        // ── Readonly (the review): a loaded project is drawn without the green flag (#10736) ──
+        {
+            const ro = await openHost(browser, `editor=${encodeURIComponent(EDITOR)}&mode=readonly`);
+            await waitReady(ro.page);
+            const loaded = await ro.page.evaluate(([json, svg, id]) => {
+                const bytes = new TextEncoder().encode(svg).buffer;
+                return window.emu('load', {project: {json, assets: {[`${id}.svg`]: bytes}}, mode: 'readonly'});
+            }, [RED_PROJECT, RED_SVG, RED_ID]);
+            await sleep(1200);
+            const state = await emu(ro.page, 'getState');
+            check('readonly load: the VM has the loaded sprites',
+                loaded.ok && state.sprites.map(s => s.name).join() === 'Bowl,Apple', loaded.error);
+            const colour = await stagePixel(ro.page);
+            check('readonly load: the stage shows the loaded project before the green flag, not the blank one',
+                isRed(colour), `stage pixel ${colour.join(',')}`);
+            await ro.context.close();
+        }
+
+        // ── Exam: no File menu, so no Save to your computer (#10736) ───────
+        {
+            const ex = await openHost(browser, `editor=${encodeURIComponent(EDITOR)}&mode=exam`);
+            await waitReady(ex.page);
+            const f = editorFrame(ex.page);
+            const fileMenus = await f.locator('[class*="menu-bar_menu-bar-item"]', {hasText: /^File$/}).count();
+            check('exam mode has no File menu (no Save to your computer)', fileMenus === 0, `${fileMenus} File menu(s)`);
+            await ex.context.close();
+        }
 
         // ── Another origin cannot drive it ─────────────────────────────────
         const other = await openHost(browser, `editor=${encodeURIComponent(EDITOR)}&hostParam=${encodeURIComponent(OTHER)}`);
