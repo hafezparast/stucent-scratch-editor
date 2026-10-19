@@ -350,6 +350,13 @@ const main = async () => {
         await sleep(300);
         check('fullscreen request and event', r.ok && (await events(page, 'fullscreen')).some(e => e.on === true));
         await emu(page, 'fullscreen', {on: false});
+        r = await emu(page, 'setStageSize', {size: 'small'});
+        await sleep(300);
+        const smallBox = await frame.locator('canvas').first().boundingBox();
+        check('a small stage is 240 px wide', r.ok && smallBox && Math.round(smallBox.width) === 240, JSON.stringify(smallBox));
+        r = await emu(page, 'setStageSize', {size: 'huge'});
+        check('an unknown stage size is refused', !r.ok);
+        await emu(page, 'setStageSize', {size: 'normal'});
         r = await emu(page, 'setMode', {mode: 'root'});
         check('an unknown mode is refused', !r.ok);
         r = await emu(page, 'nonsense');

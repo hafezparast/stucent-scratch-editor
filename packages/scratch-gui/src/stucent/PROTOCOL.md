@@ -84,6 +84,7 @@ name or `"Stage"`. `edit.kind` is one of `block.create`, `block.delete`,
 | `greenFlag` / `stop` | — | `{}` |
 | `fullscreen` | `on: boolean` | `{}` |
 | `setMode` | `mode` | `{}` |
+| `setStageSize` | `size`: `normal` \| `small` | `{}` |
 
 **`load.project`** is one of: `.sb3` bytes (`ArrayBuffer` or a typed array);
 a project.json object; `{json, assets}` where `assets` maps each md5ext
@@ -118,6 +119,15 @@ place it), or replaces the script whose top block is `replace`. A locked
 script is never replaced; blocks of an extension the editor refuses are
 refused. `undo` is a one-time token: `undo` removes the added script and puts
 back the replaced one.
+
+**`setStageSize`**: `small` gives the stage 240 x 180 px (half of the standard
+480 x 360) and lets the editor lay out down to 640 px wide (the page's minimum
+width is 1024 px otherwise): the host asks for it when the frame is narrower
+than 1024 px (a tablet, a question column) instead of scaling the wide layout
+down. `normal` goes back to the large stage and the 1024 px minimum. The size
+is kept across `load`; the stage-size buttons in the editor still work, but
+only `small` narrows the minimum width. Advertised as the `setStageSize`
+feature in `ready`: a host that does not find it must keep scaling.
 
 ## Modes
 
