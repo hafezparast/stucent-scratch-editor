@@ -22,10 +22,11 @@ import {blocklyEdit, logVmEdits} from './edit-log';
 import {redrawWhileStopped} from './redraw';
 import {LockState, markWorkspace, normalizeLocks, targetLockName} from './locks';
 import {EMPTY_LOCKS, MODES, getPolicy, isExtensionAllowed, setPolicy} from './policy';
+import {applyStageSize} from './stage-size';
 import {vmState} from './vm-state';
 
 const FEATURES = Object.freeze([
-    'load', 'setLocks', 'getProject', 'getState', 'applyBlocks', 'undo', 'greenFlag', 'stop', 'fullscreen', 'setMode',
+    'load', 'setLocks', 'getProject', 'getState', 'applyBlocks', 'undo', 'greenFlag', 'stop', 'fullscreen', 'setMode', 'setStageSize',
     'edit-log', 'project-assets'
 ]);
 
@@ -250,6 +251,10 @@ const mountEditor = (appTarget, params, storage) => {
         },
         fullscreen: msg => {
             store.dispatch(setFullScreen(!!msg.on));
+            return {};
+        },
+        setStageSize: msg => {
+            applyStageSize(store, document.documentElement, msg.size);
             return {};
         },
         setMode: msg => {

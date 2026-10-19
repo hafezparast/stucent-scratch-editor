@@ -24,4 +24,16 @@ body,
     min-height: 640px;
 }
 
+/* Small stage (setStageSize, PROTOCOL.md): the editor lays out in 640 px instead of 1024 px. */
+html.stucent-small-stage,
+.stucent-small-stage body,
+.stucent-small-stage .stucent-app {
+    min-width: 640px;
+}
+
+/* gui.css pins the editor column's basis to a 1024 px layout; here it only has to leave room for the small stage. */
+.stucent-small-stage [class*="gui_editor-wrapper"] {
+    flex-basis: calc(640px - 264px);
+}
+
 * { box-sizing: border-box; }
